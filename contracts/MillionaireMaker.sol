@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT LICENSE
 
-// USDC contract: 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+pragma solidity ^0.8.0;
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface USDCToken {
     function balanceOf(address account) external view returns (uint256);
@@ -28,12 +29,13 @@ interface USDCToken {
     function approve(address spender, uint256 value) external returns (bool);
 }
 
-pragma solidity ^0.8.0;
-import "@openzeppelin/contracts/access/Ownable.sol";
+// Mainner USDC contract: 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
 
 // TODO this can be done to be reusable(multiple drawings/seassons)
-contract GangToken is Ownable {
-    uint256 ticketCount;
+contract MillionaireMaker is Ownable {
+    // Note we instatiate to 1 instead of 0, which will use 15k gas less
+    uint256 ticketCount = 1;
+    // Note we use one index higher which avoids using `<=` as solidity counts this as 2 opcodes instead of 1 for `<`
     uint256 maxIndex = 1_000_001;
 
     mapping(uint256 => address) tickets;
@@ -70,7 +72,7 @@ contract GangToken is Ownable {
         );
         uint256 amount = count * 1_000_000;
         usdcToken.transferFrom(msg.sender, address(this), amount);
-        for (uint256 i = 1; i <= amount; i++) {
+        for (uint256 i; i < count; i++) {
             tickets[_ticketCount + i] = _owner;
         }
         _ticketCount += count;
