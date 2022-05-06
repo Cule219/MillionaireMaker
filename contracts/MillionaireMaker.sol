@@ -52,6 +52,7 @@ contract MillionaireMaker is Ownable {
     }
 
     // For obtaining signatures look into https://yos.io/2018/11/16/ethereum-signatures/#verification
+    // This is to be used with frontend
     function approve(
         uint256 amount,
         uint256 deadline,
@@ -60,6 +61,20 @@ contract MillionaireMaker is Ownable {
         bytes32 s
     ) external {
         usdcToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
+    }
+
+    // Note For usecase directly, on Etherscane for example
+    function approveDirect(address spender, uint256 value) external {
+        usdcToken.approve(spender, value);
+    }
+
+    // Note this allows buying single ticket
+    function buyTicket() external {
+        address _owner = msg.sender;
+        require(ticketCount + 1 < maxIndex, "Not enough tickets left for sale");
+        usdcToken.transferFrom(msg.sender, address(this), 1_000_000);
+        ticketCount++;
+        tickets[ticketCount] = _owner;
     }
 
     // Note this allows buying multiple tickets
